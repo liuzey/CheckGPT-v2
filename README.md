@@ -38,20 +38,20 @@ There are two versions of datasets:
 {"abstract"}: {Abstract}
 }
 
-For HUM Task 2 GPT-CPL, use the second half of each text. See this line of [code]().
+For HUM Task 2 GPT-CPL, use the second half of each text.
 
 ### Other Datasets used in this Paper:
 Download these files and put them under *CheckGPT_presaved_files*:
-- Other Academic Writing Purposes (Section 5.4)
-- Classic NLP Datasets (Section 5.4)
-- Advanced Prompt Engineering (Section 5.7)
-- Sanitized GPT Output (Section 5.10)
+- Other Academic Writing Purposes (Section 5.4) (Available under *CheckGPT_presaved_files/Additional_data/Other_purpose*)
+- Classic NLP Datasets (Section 5.4) (Available under *CheckGPT_presaved_files/Additional_data/Classic_NLP*)
+- Advanced Prompt Engineering (Section 5.7) (Available under *CheckGPT_presaved_files/Additional_data/Prompt_engineering*)
+- Sanitized GPT Output (Section 5.10) (Available under *CheckGPT_presaved_files/Additional_data/Sanitized*)
+- GPT4 (Section 5.6 )  (Available under *CheckGPT_presaved_files/Additional_data/GPT4*)
 
 ## Pre-trained Models:
-Download via [Google Drive](). Place them under *CheckGPT_presaved_files*.
+Download. Place them under *CheckGPT_presaved_files*.
 - Models trained on GPABenchmark (v1) can be accessed at *Pretrained_models*.
 - Experiments in Section 5.2 and 5.3, including pre-trained models and training logs, can be found at *saved_experiments/basic*.
-- 
 
 ## Environment Setup
 Run
@@ -111,6 +111,11 @@ or
 python validate_text.py ../GPABench2/CS/ground.json ../CheckGPT_presaved_files/saved_experiments/basic/CS_Task3_Prompt2/Best_CS_Task3.pth 0
 ```
 
+To run it on special dataset like GPT4, run
+```bash
+python validate_text.py ../CheckGPT_presaved_files/Additional_data/GPT4/chatgpt_cs_task3.json ../CheckGPT_presaved_files/saved_experiments/basic/CS_Task3_Prompt2/Best_CS_Task3.pth 1
+```
+
 ### Testing on pre-saved features
 ```bash
 python dnn.py {DOMAIN} {TASK} {PROMPT} {EXP_ID} --pretrain 1 --test 1 --saved-model {MODEL_PATH}
@@ -155,33 +160,4 @@ python dnn.py HSS 1 2 12347 --trans 1 --mdomain CS --mtask 3 --mprompt 1 --mid 1
 python dnn.py HSS_500 1 2 12347 --trans 1 --mdomain CS_500 --mtask 3 --mprompt 1 --mid 12346
 ```
 --mid indicates the pre-trained model in previous experiments (e.g., 12346 as we did above).
-
-
-
-## Notes
-Here we provide the references for other experiments in the paper:
-### Benchmarking Online and Open-source ChatGPT Detectors (Section 2.2)
-- GPTZero
-- ZeroGPT
-- OpenAI's classifier
-- HC3-PPL
-- HC3-GLTR
-- HC3-RBT
-- OpenAI-RBT
-- HLR, Rank, Log-Rank, TP, PPL, Entropy
-- DetectGPT
-- BERT
-- DistillBERT
-- RoBERTa
-- GPT-2
-
-### SOTA ChatGPT Datasets in the Literature (Section 5.4) & non-GPT LLMs (Section 5.6)
-- ArguGPT
-- HC3
-- M4
-- MULTITuDE
-- MGTBench
-
-### CheckGPT Performance Over Time (Section 5.5)
-- ChatLog-HC3
 
