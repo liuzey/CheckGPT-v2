@@ -1,0 +1,1 @@
+This folder is reserved for storing the extracted features.

@@ -1,25 +1,26 @@
 import torch
 from transformers import RobertaTokenizer, RobertaModel, RobertaConfig, RobertaPreTrainedModel
 import torch.nn.functional as F
-from model import AttenLSTM
+from model import CheckGPT as AttenLSTM
 
 
 class CustomRobertaForPipeline(RobertaPreTrainedModel):
-    def __init__(self, config, device="gpu"):
+    def __init__(self, config, device="cuda"):
         super().__init__(config)
         self.roberta = RobertaModel(config)
         self.classifier = AttenLSTM(input_size=1024, hidden_size=256, batch_first=True, dropout=0.5, bidirectional=True,
-                              num_layers=2, device=device)
+                              num_layers=2, device=device, v1=0)
 
     def forward(self, input_ids, attention_mask=None, token_type_ids=None, position_ids=None, head_mask=None,
                 inputs_embeds=None):
         outputs = self.roberta(input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids,
                                    position_ids=position_ids, head_mask=head_mask, inputs_embeds=inputs_embeds)
         features = F.pad(outputs.last_hidden_state, (0, 0, 0, 512 - outputs.last_hidden_state.size(1)))
-        logits = self.classifier(features)
+        logits = self.classifier(features, lengths=torch.tensor([outputs.last_hidden_state.size(1)]))
         return logits
 
-
+folder_name = "CheckGPT_presaved_files"
+folder_name = "../git_google_drive/"
 device_name = "cuda" if torch.cuda.is_available() else "cpu"
 device = torch.device(device_name)
 tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
@@ -38,16 +39,16 @@ def eval_one(model, input):
 
 try:
     while True:
-        a = input("Please input the text to be evaluated: (0 for gpt, 1 for human)\n")
+        a = input("Please input the text to be evaluated: (0 for gpt, 1 for human, input 'exit' to end)\n")
         if a == "exit":
             raise KeyboardInterrupt
-        model.classifier.load_state_dict(torch.load("../Pretrained/Unified_Task1.pth"), map_location=device)
+        model.classifier.load_state_dict(torch.load(f"../{folder_name}/Pretrained_models/Unified_Task1.pth"))
         print("- Decision of GPT-Written: {}, Probability: GPT: {:.4f}%, Human: {:.4f}%.".format(*eval_one(model, a)))
-        model.classifier.load_state_dict(torch.load("../Pretrained/Unified_Task2.pth"), map_location=device)
+        model.classifier.load_state_dict(torch.load(f"../{folder_name}/Pretrained_models/Unified_Task2.pth"))
         print("- Decision of GPT-Completed: {}, Probability: GPT: {:.4f}%, Human: {:.4f}%.".format(*eval_one(model, a)))
-        model.classifier.load_state_dict(torch.load("../Pretrained/Unified_Task3.pth"), map_location=device)
+        model.classifier.load_state_dict(torch.load(f"../{folder_name}/Pretrained_models/Unified_Task3.pth"))
         print("- Decision of GPT-Polished: {}, Probability: GPT: {:.4f}%, Human: {:.4f}%.".format(*eval_one(model, a)))
-        model.classifier.load_state_dict(torch.load("../Pretrained/Unified_Task123.pth"), map_location=device)
+        model.classifier.load_state_dict(torch.load(f"../{folder_name}/Pretrained_models/Unified_Task123.pth"))
         print("- Decision of GPT-Generated (any kind): {}, Probability: GPT: {:.4f}%, Human: {:.4f}%.\n".format(*eval_one(model, a)))
 except KeyboardInterrupt:
     exit()
