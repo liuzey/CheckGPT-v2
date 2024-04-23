@@ -30,10 +30,7 @@ model.eval()
 
 def eval_one(model, input):
     item = input.replace("\n", " ").replace("  ", " ").strip()
-    tokens = tokenizer.encode(item)
-    if len(tokens) > 512:
-        tokens = tokens[:512]
-        print("!!!Input too long. Truncated to first 512 tokens.")
+    tokens = tokenizer.encode(item, truncation=True, max_length=512)
     outputs = model(torch.tensor(tokens).unsqueeze(0).to(device))
     pred = torch.max(outputs.data, 1)[1]
     (gpt_prob, hum_prob) = F.softmax(outputs.data, dim=1)[0]

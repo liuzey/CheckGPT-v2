@@ -9,30 +9,32 @@ import torch.nn.functional as F
 parser = argparse.ArgumentParser(description='Demo of argparse')
 parser.add_argument('domain', type=str)
 parser.add_argument('task', type=str)
-parser.add_argument('--pairs', type=int, default=0)
+parser.add_argument('prompt', type=str)
+parser.add_argument('--number', type=int, default=0)
+parser.add_argument('--gpt', type=int, default=1)
 args = parser.parse_args()
 
-domain = args.domain
-task = args.task
+domain, task, prompt = args.domain, args.task, args.prompt
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 roberta = torch.hub.load('pytorch/fairseq', 'roberta.large').to(device)
 roberta.eval()
 
-with open("../GPABenchmark/{}_TASK{}/gpt.json".format(domain, task), 'r') as f1:
-    data1 = json.load(f1)
-f1.close()
+data_name = 'gpt_task{}_prompt{}'.format(task, prompt) if args.gpt else 'ground'
+feature_name = data_name
+if not args.gpt and task == '2':
+    feature_name = 'ground_task2'
+if args.number:
+    feature_name += "_{}".format(args.number)
+with open("../GPABench2/{}/{}.json".format(domain, data_name), 'r') as f:
+    data = json.load(f)
+f.close()
 
-with open("../GPABenchmark/{}_TASK{}/hum.json".format(domain, task), 'r') as f2:
-    data2 = json.load(f2)
-f2.close()
-
-print(len(list(data1.keys())))
-print(len(list(data2.keys())))
+print("Data name: {}, data num: {}".format(data_name, len(list(data.keys()))))
 too_long = 0
-total_length = 2 * args.pairs if args.pairs else len(list(data1.keys())) + len(list(data2.keys()))
+total_length = args.number if args.number else len(list(data.keys()))
 
 start = time.time()
-data = h5py.File('./embeddings/{}_TASK{}_{}.h5'.format(domain, task, total_length), 'w')
+data = h5py.File('./embeddings/{}.h5'.format(feature_name), 'w')
 data.create_dataset('data', (total_length, 512, 1024), dtype='f4')
 data.create_dataset('label', (total_length, 1), dtype='i')
 
@@ -46,27 +48,24 @@ def fetch_representation(text):
     return last_layer_features
 
 
-for i, (gpt, hum) in enumerate(zip(data1.values(), data2.values())):
-    gpt_features, hum_features = fetch_representation(gpt), fetch_representation(hum)
+i = 0
+for abstract in data.values():
+    features = fetch_representation(abstract)
 
-    if gpt_features is None or hum_features is None:
+    if features is None:
         too_long += 1
         continue
 
-    gpt_features_ = F.pad(gpt_features, (0, 0, 0, 512 - gpt_features.size(1)))
-    hum_features_ = F.pad(hum_features, (0, 0, 0, 512 - hum_features.size(1)))
+    features_ = F.pad(features, (0, 0, 0, 512 - features.size(1)))
 
-    data["data"][2 * i] = gpt_features_.clone().detach().cpu()
-    data["label"][2 * i] = torch.zeros(1)
-
-    data["data"][2 * i + 1] = hum_features_.clone().detach().cpu()
-    data["label"][2 * i + 1] = torch.ones(1)
+    data["data"][i] = features_.clone().detach().cpu()
+    data["label"][i] = torch.ones(1) * (1 - args.gpt)
 
     if i % 200 == 0:
-        print("{}{} at {}th pair. Time used: {}s. Outliers: {}".format(domain, task, i, time.time()-start, too_long))
+        print("{}{} at {}th sample. Time used: {}s. Overlong outliers: {}".format(domain, task, i, time.time()-start, too_long))
 
     i += 1
-    if i >= args.pairs:
+    if i >= args.number:
         break
 
 data.close()

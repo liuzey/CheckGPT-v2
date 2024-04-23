@@ -16,7 +16,7 @@ The official repository of paper: "On the Detectability of ChatGPT Content: Benc
 
 
 ## Data
-There are tow versions of datasets: 1. GPABenchmark. 2. GPABench2.
+There are two versions of datasets: 1. GPABenchmark. 2. GPABench2.
 > We mainly use GPABench2 in our CCS 2024 submission.
 
 ### Description of the Datasets
@@ -33,8 +33,8 @@ There are tow versions of datasets: 1. GPABenchmark. 2. GPABench2.
 For HUM Task 2 GPT-CPL, use the second half of each text. See this line of [code]().
 
 ### Other Datasets used in this Paper:
-- Other Academic Writing Purposes (Section 5.4.1)
-- Classic NLP Datasets (Section 5.4.2)
+- Other Academic Writing Purposes (Section 5.4)
+- Classic NLP Datasets (Section 5.4)
 - Advanced Prompt Engineering (Section 5.7)
 - Sanitized GPT Output (Section 5.10)
 
@@ -95,7 +95,7 @@ Here we provide the references for other experiments in the paper:
 - RoBERTa
 - GPT-2
 
-### SOTA ChatGPT Datasets in the Literature (Section 5.4.3) & non-GPT LLMs (Section 5.6.2)
+### SOTA ChatGPT Datasets in the Literature (Section 5.4) & non-GPT LLMs (Section 5.6)
 - ArguGPT
 - HC3
 - M4
