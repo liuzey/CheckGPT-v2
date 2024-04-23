@@ -1,3 +1,5 @@
+# This is for generating the embeddings for the GPABench2 dataset.
+import os
 import torch
 import json
 import h5py
@@ -29,14 +31,15 @@ with open("../GPABench2/{}/{}.json".format(domain, data_name), 'r') as f:
     data = json.load(f)
 f.close()
 
-print("Data name: {}, data num: {}".format(data_name, len(list(data.keys()))))
+print("Data name: {}, data num: {}".format(feature_name, len(list(data.keys()))))
 too_long = 0
 total_length = args.number if args.number else len(list(data.keys()))
 
 start = time.time()
-data = h5py.File('./embeddings/{}.h5'.format(feature_name), 'w')
-data.create_dataset('data', (total_length, 512, 1024), dtype='f4')
-data.create_dataset('label', (total_length, 1), dtype='i')
+assert not os.path.exists('../embeddings/{}.h5'.format(feature_name)), "File already exists!"
+embeddings = h5py.File('../embeddings/{}.h5'.format(feature_name), 'w')
+embeddings.create_dataset('data', (total_length, 512, 1024), dtype='f4')
+embeddings.create_dataset('label', (total_length, 1), dtype='i')
 
 
 def fetch_representation(text):
@@ -50,7 +53,7 @@ def fetch_representation(text):
 
 i = 0
 for abstract in data.values():
-    features = fetch_representation(abstract)
+    features = fetch_representation(abstract["abstract"])
 
     if features is None:
         too_long += 1
@@ -58,17 +61,18 @@ for abstract in data.values():
 
     features_ = F.pad(features, (0, 0, 0, 512 - features.size(1)))
 
-    data["data"][i] = features_.clone().detach().cpu()
-    data["label"][i] = torch.ones(1) * (1 - args.gpt)
+    embeddings["data"][i] = features_.clone().detach().cpu()
+    embeddings["label"][i] = torch.ones(1) * (1 - args.gpt)
 
     if i % 200 == 0:
-        print("{}{} at {}th sample. Time used: {}s. Overlong outliers: {}".format(domain, task, i, time.time()-start, too_long))
+        print("{}. Complete {}/{} ({:.1f}%). Time used: {}s. Overlong: {}".format(feature_name, i, total_length, 100 * i / total_length,
+                                                                                  time.time()-start, too_long))
 
     i += 1
     if i >= args.number:
         break
 
-data.close()
+embeddings.close()
 
 
 
