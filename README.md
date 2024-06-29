@@ -4,7 +4,7 @@
 
 ## Description
 
-The official repository of "On the Detectability of ChatGPT Content: Benchmarking, Methodology, and Evaluation through the Lens of Academic Writing".
+The official repository of "On the Detectability of ChatGPT Content: Benchmarking, Methodology, and Evaluation through the Lens of Academic Writing". You can find another version of our artifact at [Zenodo](https://zenodo.org/records/11215222). An early version of this project can be found [here](https://github.com/liuzey/CheckGPT).
 
 ## Table of Contents
 
@@ -13,7 +13,26 @@ The official repository of "On the Detectability of ChatGPT Content: Benchmarkin
 - [Installation](#installation)
 - [Usage](#usage)
 - [Notes](#notes)
+  
+## Recommended Hardware
+- Disk: At least 10GB to store the models and datasets. An extra 52GB for each 50,000 samples of features (~2.2 TB in total for *./GPABench2*).
+- GPU: **For CheckGPT**: 6 GB Memory (for training) or 2 GB Memory (for inference). Need to adjust the batch size accordingly. **For other benchmarked models in Sec 2.2**: 11 GB Memory.
 
+## Package Installation
+Run
+```bash
+pip install -r requirements.txt
+```
+We recommend using a virtual environment, docker, or VM to avoid version conflicts. For example, to set up a virtual environment using *virtualenv*, install it using pip:
+```
+pip install virtualenv
+```
+Navigate to a desired folder, create a virtual environment, activate it, and install our list of packages as provided:
+```
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## Data
 There are two versions of datasets:
@@ -21,6 +40,15 @@ There are two versions of datasets:
 2. GPABench2.
 > We mainly use GPABench2 in our CCS 2024 submission.
 
+### About the Artifact
+The files are separated into several parts for upload convenience. Please download and extract all parts into the same host folder (e.g., ./artifact_checkgpt/).
+- *CheckGPT.zip*: the main folder of the CheckGPT code (./artifact_checkgpt/CheckGPT). *embeddings* is the folder for saving features. *exp* is the folder for saving results under different experiment IDs.
+- *CheckGPT_presaved_files.zip*: pre-trained models and saved experiments (./artifact_checkgpt/CheckGPT_presaved_files).
+- *CS.zip*, *PHX.zip*, *HSS.zip*: GPABench2 datasets. Please download and extract them into a newly created folder, "GPABench2" (./artifact_checkgpt/GPABench2).
+- *GPABenchmark.zip*: GPABenchmark datasets (./artifact_checkgpt/GPABenchmark).
+- *scripts.zip*: scripts for reproducing the results in the paper. Extract them into the main folder (./artifact_checkgpt/CheckGPT).
+- *README.md*: this file.
+  
 ### Description of the Datasets
 **GPABenchmark:**
 - GPT example: ./GPABenchmark/CS_Task1/gpt.json *(Computer Science, Task 1 GPT-WRI)*
@@ -31,14 +59,14 @@ There are two versions of datasets:
 - GPT example: ./GPABench2/PHX/gpt_task3_prompt4.json *(Physics, Task 3 GPT-POL, Prompt 4)*
 - HUM example: ./GPABench2/PHX/ground.json
 - Data structure: 
-{Index}: 
-{ 
-{"id"}: {PaperID},
-{"title"}: {PaperTitle},
-{"abstract"}: {Abstract}
-}
+  {Index}: 
+  { 
+  {"id"}: {PaperID},
+  {"title"}: {PaperTitle},
+  {"abstract"}: {Abstract}
+  }
 
-For HUM Task 2 GPT-CPL, use the second half of each text.
+For GPABench2, download CS, PHX, and HSS, and put them under a created folder "./GPABench2". For HUM Task 2 GPT-CPL, use the second half of each text.
 
 ### Other Datasets used in this Paper:
 Download these files and put them under *CheckGPT_presaved_files*:
